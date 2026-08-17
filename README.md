@@ -79,4 +79,9 @@ Set a start and stop time, hit **Execute Simulation**. The log fills as the solv
 
 ## License
 
-[MIT](LICENSE)
+MIT — see [LICENSE](LICENSE).
+
+## Author
+
+[Vidit-lab](https://github.com/Vidit-lab)
+
