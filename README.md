@@ -2,11 +2,49 @@
 
 A desktop app that runs a compiled OpenModelica model, streams its output live, and plots the results.
 
-![Simulation window](docs/screenshot.png)
+[View a screenshot of the running app →](docs/simulation-window.png)
 
 ---
 
 ## What it does
+
+The app is a thin wrapper around a compiled Modelica simulation. Building the model and running it are two separate stages.
+
+### Step 1 — Build the model (once, in OMEdit)
+
+Done ahead of time. The app never compiles anything.
+
+```mermaid
+flowchart LR
+    MO["NonInteractingTanks/*.mo<br/>der(h) = (Qin - Qo) / A"] --> OMC["OpenModelica<br/>compiler"] --> C["generated C"] --> BIN["bin/TwoConnectedTanks<br/>standalone executable"]
+```
+
+### Step 2 — Run the app (`python main.py`)
+
+```mermaid
+flowchart TD
+    S1["1 · Window opens, fields prefilled<br/><i>main_window.py</i>"]
+    S2["2 · User enters start / stop time, clicks Execute"]
+    S3["3 · Bounds checked: 0 &le; start &lt; stop &lt; 5<br/><i>validator.py</i>"]
+    S4["4 · Binary launched with CLI args<br/><i>models.py — QProcess</i>"]
+    S5["5 · DASSL solves the ODEs"]
+    S6["6 · Log panel fills live"]
+    S7[("7 · TwoConnectedTanks_res.mat written")]
+    S8["8 · Decoded into named arrays<br/><i>matreader.py</i>"]
+    S9["9 · tank1.h / tank2.h drawn on the canvas<br/><i>main_window.py</i>"]
+
+    S1 --> S2 --> S3 --> S4 --> S5
+    S5 -- "stdout, as it runs" --> S6
+    S5 -- "on exit 0" --> S7 --> S8 --> S9
+```
+
+Three things carry the weight:
+
+- **`QProcess`, not `subprocess`** — the solver runs asynchronously, so the window stays responsive and the log fills line by line instead of dumping at the end.
+- **`matreader.py`** — OpenModelica's `.mat` stores names as a *transposed* character matrix and splits values across two data blocks, with `dataInfo` mapping each name onto a row and a sign. Read naively, the variable names come out as garbage.
+- **Qt signals** — the process runner emits `output_received` / `finished` and knows nothing about the GUI, so either side can change alone.
+
+### The simulated model
 
 Two tanks connected by a pipe. Tank 1 has a constant inflow and a valve that opens at `t = 5 s`; tank 2 collects whatever leaves tank 1 and has no outlet.
 
@@ -100,4 +138,4 @@ Set a start and stop time, hit **Execute Simulation**. The log fills as the solv
 
 ## License
 
-MIT
+[MIT](LICENSE)
