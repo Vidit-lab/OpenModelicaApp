@@ -73,10 +73,7 @@ Set a start and stop time, hit **Execute Simulation**. The log fills as the solv
 
 ## Future improvements
 
-- Raise the stop-time cap and let the valve event appear in the app
-- Variable picker, so any signal in the result file can be plotted
-- Export plot and result data
-- Build the Modelica model from source instead of shipping a binary
+- Work on more equation modelling tasks like this.
 
 ---
 
