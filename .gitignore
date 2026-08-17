@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+
+# OpenModelica run artifacts (regenerated on every simulation)
+bin/*.mat
+bin/*.log
+bin/*_prof.*
+bin/*_JacA.bin
